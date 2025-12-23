@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Architecture & Ethics Lab v2.5</title>
+    <title>Social Architecture & Ethics Lab v3.0</title>
     <style>
         :root {
             --primary: #1e40af; --secondary: #3b82f6; --bg: #f8fafc;
@@ -14,7 +14,7 @@
         .container { max-width: 1000px; margin: 0 auto; background: white; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         header { background: var(--primary); color: white; padding: 2rem; border-radius: 12px 12px 0 0; }
         .tabs { display: flex; background: #f1f5f9; border-bottom: 1px solid var(--border); }
-        .tabs button { flex: 1; padding: 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tabs button { flex: 1; padding: 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; }
         .tabs button.active { color: var(--primary); border-bottom-color: var(--primary); background: white; }
         .panel { display: none; padding: 2rem; }
         .panel.active { display: block; }
@@ -23,18 +23,24 @@
         .metric { text-align: center; background: var(--accent); padding: 1rem; border-radius: 8px; }
         .metric-label { font-size: 0.75rem; text-transform: uppercase; font-weight: bold; color: var(--primary); }
         .metric-value { font-size: 2.5rem; font-weight: 800; }
-        .viz { height: 200px; display: flex; align-items: flex-end; gap: 4px; background: #0f172a; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
-        .bar { flex: 1; background: var(--secondary); transition: height 0.5s ease; border-radius: 2px 2px 0 0; }
-        .bar.truncated { background: var(--danger); }
-        .slider-box { margin-bottom: 1.5rem; }
-        label { font-weight: 700; display: block; margin-bottom: 0.5rem; }
-        input[type="range"] { width: 100%; }
-        .btn { padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
-        .btn-main { background: var(--primary); color: white; }
+        
+        /* THE VISUALIZER */
+        .viz { height: 250px; display: flex; align-items: flex-end; gap: 6px; background: #0f172a; padding: 1.5rem; border-radius: 8px; margin-top: 1rem; border: 4px solid #334155; }
+        .bar { flex: 1; background: var(--secondary); transition: height 0.3s ease-out; border-radius: 4px 4px 0 0; position: relative; }
+        .bar.truncated { background: var(--danger); box-shadow: 0 0 15px var(--danger); }
+        
+        /* SLIDERS */
+        .slider-box { margin-bottom: 1.5rem; background: #fff; padding: 10px; border-radius: 6px; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .readout { font-family: monospace; font-size: 1.2rem; font-weight: bold; color: var(--primary); background: #dbeafe; padding: 2px 8px; border-radius: 4px; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+
+        .btn { padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn-main { background: var(--success); color: white; }
         .btn-save { background: #334155; color: white; margin-top: 1rem; }
         .scenario { background: var(--accent); border-left: 4px solid var(--primary); padding: 1rem; margin-bottom: 1rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+        
+        [aria-live="polite"] { font-style: italic; }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -42,30 +48,37 @@
 
 <div class="container">
     <header>
-        <h1>Social Architecture & Ethics Lab</h1>
-        <p>A Physics Engine for Human Agency & Social Contracts</p>
+        <h1>Social Architecture & Ethics Lab v3.0</h1>
+        <p>Interactive Physics Engine: Watch Identity "Truncate" in Real-Time</p>
     </header>
 
     <div class="tabs" role="tablist">
-        <button class="active" onclick="openTab(event, 'sim')">Simulation</button>
-        <button onclick="openTab(event, 'worksheet')">Lab Worksheet</button>
-        <button onclick="event, openTab(event, 'glossary')">Definitions</button>
+        <button class="active" onclick="openTab(event, 'sim')">1. Simulation</button>
+        <button onclick="openTab(event, 'worksheet')">2. Lab Worksheet</button>
+        <button onclick="openTab(event, 'glossary')">3. Definitions</button>
     </div>
 
     <div id="sim" class="panel active">
         <div class="grid">
             <div class="card">
                 <h2>Governor Controls</h2>
+                
                 <div class="slider-box">
-                    <label for="entropy">Environmental Entropy (Noise/Stress)</label>
-                    <input type="range" id="entropy" min="0" max="1" step="0.01" value="0.3" oninput="runSim()">
-                    <small>Increases the "Energy Tax" on individual moral choice.</small>
+                    <div class="slider-header">
+                        <label for="entropy">Environmental Entropy (Stress)</label>
+                        <span id="entropy-val" class="readout">0.30</span>
+                    </div>
+                    <input type="range" id="entropy" min="0.05" max="1" step="0.01" value="0.30" oninput="runSim()">
                 </div>
+
                 <div class="slider-box">
-                    <label for="budget">Metabolic Budget (Resources)</label>
-                    <input type="range" id="budget" min="1" max="10" step="0.5" value="4" oninput="runSim()">
-                    <small>The biological energy available for complex thinking.</small>
+                    <div class="slider-header">
+                        <label for="budget">Metabolic Budget (Resources)</label>
+                        <span id="budget-val" class="readout">40</span>
+                    </div>
+                    <input type="range" id="budget" min="1" max="100" step="1" value="40" oninput="runSim()">
                 </div>
+
                 <button class="btn btn-main" id="bioBtn" onclick="toggleBioBond()">Activate BioBond (Cooling)</button>
             </div>
 
@@ -81,52 +94,36 @@
                         <div id="depthDisplay" class="metric-value">12.0</div>
                     </div>
                 </div>
-                <div id="statusReport" aria-live="polite" style="margin-top: 1rem; font-weight: bold;"></div>
-                <button class="btn btn-save" onclick="saveReport()">Save Simulation Report</button>
+                <div id="statusReport" aria-live="polite" style="margin-top: 1.5rem; font-weight: bold; text-align: center;"></div>
+                <button class="btn btn-save" onclick="saveReport()">Download Simulation Report</button>
             </div>
         </div>
 
         <div class="card">
-            <h2>P-Adic Visualizer: Agent Identity Kernels</h2>
-            <p>Bars represent 20 individual agents. Height = <strong>Logical Depth</strong>. Red bars indicate <strong>Truncation</strong> (Survival Mode).</p>
+            <h2>Identity Visualizer</h2>
+            <p><strong>Blue Bars:</strong> High-Resolution Thinking. <strong>Red Bars:</strong> Survival Mode (Truncation).</p>
             <div class="viz" id="vizArea" aria-hidden="true"></div>
         </div>
     </div>
 
     <div id="worksheet" class="panel">
-        <h2>Simulation Worksheet: The Thermodynamics of Agency</h2>
-        <p>Use the <strong>Simulation</strong> tab to answer these questions. <em>Hand-holding Mode: Active.</em></p>
-        
+        <h2>Lab Assignment</h2>
         <div class="scenario">
-            <h3>Part 1: The Baseline</h3>
-            <p>1. Set Entropy to <strong>0.20</strong> and Budget to <strong>4.0</strong>. Note the Avg. Depth and Lambda.</p>
-            <p>2. Raise Entropy to <strong>0.60</strong>. What happens to the "Avg. Depth" bar height?</p>
+            <h3>Scenario 1: The Baseline</h3>
+            <p>1. Set <strong>Entropy</strong> to 0.30 and <strong>Budget</strong> to 40.</p>
+            <p>2. Gradually move Budget down to 10. Watch the bars shrink. Why? (<em>Agents have less energy to maintain their complexity</em>).</p>
         </div>
-
         <div class="scenario">
-            <h3>Part 2: The Sapolsky Limit</h3>
-            <p>3. Move Entropy to <strong>0.70</strong>. Note the status message. This is the biological breaking point.</p>
-            <p>4. Why did the bars turn red? (Hint: See the "Truncation" definition in the Glossary tab).</p>
-        </div>
-
-        <div class="scenario">
-            <h3>Part 3: The BioBond Intervention</h3>
-            <p>5. Keeping Entropy at <strong>0.70</strong>, click <strong>"Activate BioBond"</strong>.</p>
-            <p>6. How does Lambda change? How does this represent "Just Institutional Design"?</p>
+            <h3>Scenario 2: The Sapolsky Crash</h3>
+            <p>1. Set Budget back to 40. Gradually move <strong>Entropy</strong> toward 0.70.</p>
+            <p>2. At 0.65 (the Sapolsky Limit), watch for the color change. This is the collapse of moral agency.</p>
         </div>
     </div>
 
     <div id="glossary" class="panel">
-        <h2>Key Terms & Concepts</h2>
-        <table>
-            <tr><th>Term</th><th>Definition</th></tr>
-            <tr><td><strong>CIB</strong></td><td>Conceptual Integrative Blueprint. The internal data structure of a person's values[cite: 3].</td></tr>
-            <tr><td><strong>Logical Depth</strong></td><td>The "work" or history crystallized into a value. Depth = Character[cite: 268, 277].</td></tr>
-            <tr><td><strong>Sapolsky Limit</strong></td><td>The stress threshold where the prefrontal cortex shuts down[cite: 382, 383].</td></tr>
-            <tr><td><strong>Truncation</strong></td><td>Shedding identity to save energy. Regression to basic instinct[cite: 432, 719].</td></tr>
-            <tr><td><strong>BioBond</strong></td><td>A social "cooling system" (like a safety net) to prevent system failure[cite: 448, 653].</td></tr>
-            <tr><td><strong>Lambda (&lambda;)</strong></td><td>The society's collective capacity for complex cooperation[cite: 451, 453].</td></tr>
-        </table>
+        <h2>Definitions</h2>
+        <p><strong>The Sapolsky Limit (0.65):</strong> The point where stress makes it physically impossible to think clearly[cite: 762].</p>
+        <p><strong>Truncation:</strong> When the brain "cuts off" higher values to save energy.</p>
     </div>
 </div>
 
@@ -152,6 +149,11 @@
     function runSim() {
         let entropy = parseFloat(document.getElementById('entropy').value);
         let budget = parseFloat(document.getElementById('budget').value);
+        
+        // Update Readouts
+        document.getElementById('entropy-val').innerText = entropy.toFixed(2);
+        document.getElementById('budget-val').innerText = budget;
+
         if (bioActive) entropy *= 0.5;
 
         viz.innerHTML = '';
@@ -159,34 +161,46 @@
         let survivalCount = 0;
 
         for (let i = 0; i < 20; i++) {
-            let s = entropy + (Math.random() * 0.1);
-            // Landauer depth limit: N_max = Budget / (Cost * Stress)
-            let maxN = budget / (0.05 * Math.max(0.1, s));
-            let depth = Math.min(20, Math.floor(maxN));
+            // Noise factor per agent
+            let s = entropy + (Math.random() * 0.05);
+            
+            // PHYSICS FORMULA: N_max = Budget / (Landauer_Cost * Stress)
+            // We scale the Landauer cost so the bars fit the 0-100% height window
+            let landauerCost = 1.2; 
+            let maxN = budget / (landauerCost * s);
+            
+            // Cap at 100% for the visual
+            let depth = Math.min(100, Math.floor(maxN));
             
             totalDepth += depth;
-            if (depth < 4) survivalCount++;
+            if (depth < 25) survivalCount++; // Threshold for "Survival Mode"
 
             const b = document.createElement('div');
-            b.className = 'bar' + (depth < 4 ? ' truncated' : '');
-            b.style.height = (depth * 5) + '%';
+            // Bars turn red if depth is dangerously low OR entropy is past Sapolsky limit
+            b.className = 'bar' + (depth < 25 || entropy > 0.64 ? ' truncated' : '');
+            b.style.height = depth + '%';
             viz.appendChild(b);
         }
 
         const avgD = totalDepth / 20;
         const vSurv = survivalCount / 20;
+        
+        // CAPACITY GATE (Sapolsky Function)
         const capacity = 1 / (1 + Math.exp(15 * (entropy - 0.65)));
         const lambda = capacity * (1 - vSurv);
 
         document.getElementById('lambdaDisplay').innerText = lambda.toFixed(2);
-        document.getElementById('depthDisplay').innerText = avgD.toFixed(1);
+        document.getElementById('depthDisplay').innerText = (avgD/5).toFixed(1);
 
         const status = document.getElementById('statusReport');
-        if (entropy > 0.65) {
-            status.innerText = "CRITICAL: Sapolsky Limit reached. Mass truncation.";
+        if (entropy > 0.64) {
+            status.innerText = "🚨 CRITICAL: Sapolsky Limit reached. Identity Truncation detected.";
             status.style.color = "var(--danger)";
+        } else if (lambda < 0.5) {
+            status.innerText = "⚠️ WARNING: Low Coherence. Society is fragmenting.";
+            status.style.color = "#d97706";
         } else {
-            status.innerText = "System Stable.";
+            status.innerText = "✅ System Balanced: Agents maintaining high-depth agency.";
             status.style.color = "var(--success)";
         }
     }
@@ -195,18 +209,18 @@
         const time = new Date().toLocaleString();
         const content = `Ethics Lab Report - ${time}\n` +
             `-----------------------------------\n` +
-            `Entropy: ${document.getElementById('entropy').value}\n` +
-            `Budget: ${document.getElementById('budget').value}\n` +
-            `BioBond: ${bioActive ? 'Active' : 'Inactive'}\n` +
-            `Final Lambda: ${document.getElementById('lambdaDisplay').innerText}\n` +
-            `Avg Logical Depth: ${document.getElementById('depthDisplay').innerText}\n` +
+            `Entropy (Stress): ${document.getElementById('entropy').value}\n` +
+            `Budget (Resources): ${document.getElementById('budget').value}\n` +
+            `BioBond Status: ${bioActive ? 'Active' : 'Inactive'}\n` +
+            `Lambda (Coherence): ${document.getElementById('lambdaDisplay').innerText}\n` +
+            `Avg Agency Depth: ${document.getElementById('depthDisplay').innerText}\n` +
             `-----------------------------------\n` +
-            `Interpretation: ${document.getElementById('statusReport').innerText}`;
+            `Status: ${document.getElementById('statusReport').innerText}`;
         
         const blob = new Blob([content], { type: 'text/plain' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `Ethics_Lab_Report_${Date.now()}.txt`;
+        a.download = `Ethics_Simulation_Report.txt`;
         a.click();
     }
 
