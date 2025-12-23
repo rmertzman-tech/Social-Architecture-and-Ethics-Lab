@@ -1,37 +1,237 @@
-<!doctype html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
-<meta http-equiv="content-style-type" content="text/css">
-<link rel="stylesheet" type="text/css" href="../style.css">
-<title>ReTrace Manual</title>
-<script type="text/javascript" language="JavaScript">
-<!--
-if (window.self==window.top)
-  window.top.location.replace("../../index.html#"+window.location.pathname+window.location.hash);
-else {
-  var hash="#"+window.location.pathname.replace(window.top.location.pathname.replace("index.html", ""), "");
-  if (window.top.location.hash!=hash)
-    window.top.location.hash=hash;
-}
-//-->
-</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Architecture & Ethics Lab | Intro to Ethics</title>
+    <style>
+        :root {
+            --primary: #1e40af; --secondary: #3b82f6; --bg: #fdfdfd;
+            --text: #0f172a; --danger: #dc2626; --success: #16a34a;
+            --muted: #64748b; --border: #e2e8f0;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background: var(--bg); color: var(--text); padding: 10px; margin: 0; }
+        .container { max-width: 1100px; margin: 20px auto; background: white; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        /* Layout Sections */
+        header { background: var(--primary); color: white; padding: 25px; }
+        .tab-nav { display: flex; background: #f1f5f9; border-bottom: 1px solid var(--border); }
+        .tab-nav button { flex: 1; padding: 15px; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; }
+        .tab-nav button.active { color: var(--primary); border-bottom-color: var(--primary); background: white; }
+        .content { padding: 30px; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Sim Components */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { border: 1px solid var(--border); padding: 20px; border-radius: 8px; background: #fff; }
+        .metric { text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px; }
+        .metric-label { display: block; font-size: 0.85rem; color: var(--muted); text-transform: uppercase; font-weight: bold; }
+        .metric-value { font-size: 2.2rem; font-weight: 800; color: var(--primary); }
+        
+        /* Sliders & Buttons */
+        .slider-group { margin: 20px 0; }
+        input[type=range] { width: 100%; margin: 10px 0; }
+        .btn { display: inline-block; padding: 12px 24px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        
+        /* Visualizer */
+        .viz-container { height: 200px; display: flex; align-items: flex-end; gap: 5px; background: #0f172a; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .agent-bar { flex: 1; background: var(--secondary); border-radius: 2px 2px 0 0; min-height: 4px; transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .agent-bar.low-depth { background: #64748b; }
+        .agent-bar.critical { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+
+        /* Typography */
+        h2 { margin-top: 0; color: var(--primary); }
+        .glossary dt { font-weight: bold; color: var(--primary); margin-top: 10px; }
+        .scenario-box { background: #f0f9ff; border-left: 4px solid var(--secondary); padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+        
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
 
-<h2>ReTrace</h2>
+<div class="container">
+    <header>
+        <h1>Social Architecture & Ethics Lab</h1>
+        <p>A "Physics Engine" for Human Agency and Institutional Design</p>
+    </header>
 
-<ol>
-<li><a href="introduction.html">Introduction</a></li>
-<li><a href="usage.html">Usage</a></li>
-<li><a href="examples.html">Examples</a></li>
-</ol>
+    <nav class="tab-nav" role="tablist">
+        <button class="active" onclick="showTab('sim')" role="tab">The Simulation</button>
+        <button onclick="showTab('guide')" role="tab">Orientation Guide</button>
+        <button onclick="showTab('scenarios')" role="tab">Dilemma Scenarios</button>
+        <button onclick="showTab('glossary')" role="tab">Key Terms</button>
+    </nav>
 
-<hr />
-<noscript><div><a target="_top" href="../../index.html" class="button">Show menu</a></div></noscript>
-<address>
-Copyright &copy; 2002-2011
-<a target="other" href="http://www.lafortune.eu/">Eric Lafortune</a>.
-</address>
+    <div class="content">
+        <section id="tab-sim" class="tab-panel active">
+            <div class="grid">
+                <div class="card">
+                    <h2>Governance Controls</h2>
+                    <p>Adjust these to change the "climate" of your society.</p>
+                    
+                    <div class="slider-group">
+                        <label for="entropy"><strong>Environmental Entropy (Stress/Noise)</strong><br>
+                        <small>Higher noise = more stress on individual decision-making.</small></label>
+                        <input type="range" id="entropy" min="0" max="1" step="0.01" value="0.3">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="budget"><strong>Metabolic Budget (Resource Access)</strong><br>
+                        <small>The energy agents have for "Manual Mode" thinking.</small></label>
+                        <input type="range" id="budget" min="1" max="10" step="0.5" value="4">
+                    </div>
+
+                    <button class="btn btn-success" id="biobond-btn" onclick="toggleBioBond()">Activate BioBond (Cooling)</button>
+                </div>
+
+                <div class="card">
+                    <h2>Live System Metrics</h2>
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="metric">
+                            <span class="metric-label">Lambda (&lambda;)</span>
+                            <div class="metric-value" id="lambda-val">0.95</div>
+                            <small>Radius of Cooperation</small>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Avg. Depth</span>
+                            <div class="metric-value" id="depth-val">12.0</div>
+                            <small>Complexity of Identity</small>
+                        </div>
+                    </div>
+                    <p id="alert-box" aria-live="assertive" style="margin-top:15px; font-weight:bold;"></p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:20px;">
+                <h2>P-Adic Identity Visualization</h2>
+                <p>Each bar is an individual. Height = their <strong>Logical Depth</strong> (ability to act on values). Gray/Red bars = <strong>Truncation</strong> (reversion to instinct).</p>
+                <div class="viz-container" id="viz" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        <section id="tab-guide" class="tab-panel">
+            <h2>Welcome, System Architect</h2>
+            <p>In this lab, you aren't just reading about ethics; you are engineering the conditions that make ethics possible.</p>
+            
+            <h3>How to use this app:</h3>
+            <ol>
+                <li><strong>Monitor the Lambda:</strong> This is your social "health bar." If it falls, your agents can no longer cooperate.</li>
+                <li><strong>Watch for Truncation:</strong> When agents are too stressed, they "truncate." They lose their unique personality and act on basic tribal instincts.</li>
+                <li><strong>Test the Sapolsky Limit:</strong> Slowly increase Entropy. Note the point where the bars suddenly shrink. This is the biological breaking point of morality.</li>
+                <li><strong>Deploy BioBonds:</strong> Use the green button to "cool" the environment and see if agents can regrow their depth.</li>
+            </ol>
+        </section>
+
+        <section id="tab-scenarios" class="tab-panel">
+            <h2>Dilemma Scenarios</h2>
+            
+            <div class="scenario-box">
+                <strong>1. The Rust Belt Scenario (Hobbesian Challenge)</strong>
+                <p>Set <em>Entropy</em> to 0.8 and <em>Budget</em> to 3. Notice how Lambda crashes. <strong>Task:</strong> Can you restore Lambda without using the BioBond? (Hint: Try raising the Budget. What does this represent in real life?)</p>
+            </div>
+
+            <div class="scenario-box">
+                <strong>2. The Whistleblower’s Exhaustion</strong>
+                <p>Imagine an agent who wants to be ethical but is working 80 hours a week. Their <em>Budget</em> is drained. <strong>Task:</strong> Use the BioBond. Does this "cooling" allow them to maintain their "Leading Edge" (moral choice)?</p>
+            </div>
+        </section>
+
+        <section id="tab-glossary" class="tab-panel">
+            <h2>Definitions</h2>
+            <dl class="glossary">
+                <dt>CIB (Coherent Information Bit)</dt>
+                <dd>The internal "blueprint" of a person's values. Deep CIBs are hard-won virtues[cite: 3, 498].</dd>
+                
+                <dt>Entropy</dt>
+                <dd>Noise, chaos, and stress. In ethics, high entropy makes it physically harder to think clearly[cite: 1, 15, 412].</dd>
+                
+                <dt>Sapolsky Limit</dt>
+                <dd>The point where biological stress (hormones) shuts down the "thinking" brain and forces us into "survival mode"[cite: 203, 528].</dd>
+                
+                <dt>Truncation</dt>
+                <dd>When an agent "sheds" their complex identity and reverts to basic, often tribal, instincts to save energy[cite: 432, 550].</dd>
+                
+                <dt>BioBond</dt>
+                <dd>An institutional "cooling system" (like a safety net) that protects agents from hitting their Sapolsky Limit[cite: 448, 625].</dd>
+            </dl>
+        </section>
+    </div>
+</div>
+
+<script>
+    let biobondActive = false;
+    const viz = document.getElementById('viz');
+    const alertBox = document.getElementById('alert-box');
+
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function toggleBioBond() {
+        biobondActive = !biobondActive;
+        const btn = document.getElementById('biobond-btn');
+        btn.textContent = biobondActive ? "Deactivate BioBond (System Cooling)" : "Activate BioBond (Cooling)";
+        btn.className = biobondActive ? "btn btn-primary" : "btn btn-success";
+        update();
+    }
+
+    function update() {
+        let entropy = parseFloat(document.getElementById('entropy').value);
+        let budget = parseFloat(document.getElementById('budget').value);
+        
+        if (biobondActive) entropy *= 0.5;
+
+        let totalDepth = 0;
+        let survivalCount = 0;
+        viz.innerHTML = '';
+
+        for (let i = 0; i < 30; i++) {
+            let individualStress = entropy + (Math.random() * 0.1);
+            // N_max = Budget / (Cost * Stress)
+            let maxN = budget / (0.05 * Math.max(0.1, individualStress));
+            let depth = Math.min(20, Math.floor(maxN));
+            
+            totalDepth += depth;
+            if (depth < 4) survivalCount++;
+
+            const bar = document.createElement('div');
+            bar.className = 'agent-bar';
+            if (depth < 7) bar.classList.add('low-depth');
+            if (depth < 4) bar.classList.add('critical');
+            bar.style.height = (depth * 5) + '%';
+            viz.appendChild(bar);
+        }
+
+        let avgD = totalDepth / 30;
+        let vSurv = survivalCount / 30;
+        // Lambda = Capacity * (1 - Survival Prevalence)
+        let capacity = 1 / (1 + Math.exp(15 * (entropy - 0.65)));
+        let lambda = capacity * (1 - vSurv);
+
+        document.getElementById('lambda-val').textContent = lambda.toFixed(2);
+        document.getElementById('depth-val').textContent = avgD.toFixed(1);
+
+        if (entropy > 0.65) {
+            alertBox.textContent = "CRITICAL: Sapolsky Limit reached. Mass truncation occurring.";
+            alertBox.style.color = "var(--danger)";
+        } else if (lambda < 0.5) {
+            alertBox.textContent = "WARNING: Low Coherence. Society is fragmenting.";
+            alertBox.style.color = "orange";
+        } else {
+            alertBox.textContent = "System Stable: Coherent Agency maintained.";
+            alertBox.style.color = "var(--success)";
+        }
+    }
+
+    document.getElementById('entropy').addEventListener('input', update);
+    document.getElementById('budget').addEventListener('input', update);
+    update();
+</script>
 </body>
 </html>
